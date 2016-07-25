@@ -1,0 +1,32 @@
+Public Function getNamefromIP(IP As String) As String
+    ' getNameFromIP() function for Microsoft Excel under Windows
+    ' Copyright Apalala sprl (2016)
+    ' Author: Emmanuel Nicaise
+    ' Version: 1.0 (last updated: 30/04/2016)
+    '
+    'Run a nslookup in shell command, returning the output as a string
+    Dim oShell As Object
+    Set oShell = CreateObject("WScript.Shell")
+    ' run command
+    Dim oExec As Object
+    Dim oOutput As Object
+    ' call nslookup executable with the hostname in parameter
+    Set oExec = oShell.exec("nslookup " & IP)
+    Set oOutput = oExec.StdOut
+    ' handle the results as they are written to and read from the StdOut object
+    Dim s(10) As String
+    Dim Name As String
+    Dim line As Integer
+    line = 1
+    'store result in a array, one line per item
+    While Not oOutput.AtEndOfStream
+        s(line) = oOutput.ReadLine
+        line = line + 1
+    Wend
+
+    'IP value start at the 11th character of the 5th line of the standard output from nslookup
+    Name = Mid(s(4), 10, Len(s(4)) - 9)
+    ' Return the IP as function result
+    getNamefromIP = Name
+End Function
+
