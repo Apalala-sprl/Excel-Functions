@@ -1,0 +1,36 @@
+Public Function isIPv4(IPaddress As String) As Boolean
+'
+' Excel VBA function returning TRUE if IPAddress is an IPv4 valid IP address
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+Dim Octet() As String
+Dim NbrPart As Integer
+
+If Len(IPaddress) > 7 Then
+' if the parameter IPaddress value is not empty, continue the analysis
+    If InStr(IPaddress, ".") > 0 Then
+        Octet = Split(IPaddress, ".")
+        ' split the IPAddress in different parts, the dot being the separator
+        NbrPart = UBound(Octet)
+        If NbrPart = 3 Then
+            If (Val(Octet(1)) >= 0 And Val(Octet(1)) < 256) And (Val(Octet(2)) >= 0 And Val(Octet(2)) < 256) And (Val(Octet(3)) >= 0 And Val(Octet(3)) < 256) And (Val(Octet(0)) >= 0 And Val(Octet(0)) < 256) Then
+                isIPv4 = True
+            Else:
+                isIPv4 = False
+            End If
+        Else:
+            isIPv4 = False
+        End If
+    Else:
+        isIPv4 = False
+    End If
+Else:
+    isIPv4 = False
+End If
+     
+End Function
