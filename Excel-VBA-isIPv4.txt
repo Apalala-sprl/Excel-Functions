@@ -11,7 +11,7 @@ Public Function isIPv4(IPaddress As String) As Boolean
 Dim Octet() As String
 Dim NbrPart As Integer
 
-If Len(IPaddress) > 7 Then
+If Len(IPaddress) > 6 Then
 ' if the parameter IPaddress value is not empty, continue the analysis
     If InStr(IPaddress, ".") > 0 Then
         Octet = Split(IPaddress, ".")
