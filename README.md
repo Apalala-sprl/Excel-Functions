@@ -10,3 +10,5 @@ getIP does a NSLokkup on a hostname and return the associated IP address
 getNameFromIP does a NSLookup on an IP address and return the associated FQDN
 
 isIPv4 return TRUE if the string is a valid IPv4 address (FALSE otherwise)
+
+IP2BIN convert an IPv4 address string into a string with its 32 bits binary equivalent
