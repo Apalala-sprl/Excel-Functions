@@ -1,0 +1,36 @@
+
+Public Function GetSubnetName(IP As String, ByRef Data As Range) As String
+'
+' Excel VBA function returning a string with the name of the subnet to which an IP address belongs
+' The functions gets the list from a range of cells with the subnet IP in first column, the CIDR as second and the name in third)
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4() and inSubnet(), you need to copy these functions too.
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 29 of August 2016
+'
+Dim r As Long
+Dim flag As Boolean
+Dim Subnet As String
+
+Subnet = "This IP doesn't belong to a known subnet"
+If isIPv4(IP) Then
+' if the parameter IPaddress is a valid IP address continue the analysis
+    r = 1
+    flag = True
+    Do While Data.Cells(r, 1) <> "" And flag
+            If isIPv4(Data.Cells(r, 1)) Then
+                If inSubnet(IP, Data.Cells(r, 1), Int(Data.Cells(r, 2))) = "IN" Then
+                  Subnet = Data.Cells(r, 3)
+                  flag = False
+                End If
+            End If
+            r = r + 1
+    Loop
+Else:
+    Subnet = "Not a valid IPv4 address"
+End If
+GetSubnetName = Subnet
+End Function
