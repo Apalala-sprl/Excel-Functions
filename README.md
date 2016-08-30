@@ -13,5 +13,6 @@ isIPv4(String) return TRUE if the string is a valid IPv4 address (FALSE otherwis
 
 IP2BIN(IPAddress) convert an IPv4 address string into a string with its 32 bits binary equivalent
 
-inSubnet(IPAddress, Subnet address, Subnet_CIDR) returns IN if the provided IP address belongs to the subnet and OUT if it is not part of it
-GetMatrixValue returns the value of a specific cell in a matrix based on the headers of the row and column of the matrix. It is quite useful to check if a flow from one network to another network is authorized or not just by using a matrix with all networks'name and the default autorisation.
+inSubnet(IPAddress, Subnet address, Subnet_CIDR) returns IN if the provided IP address belongs to the subnet and OUT if it is not part of it.
+
+GetMatrixValue(Martrix range, row name, column name) returns the value of a specific cell in a matrix based on the value of the headers of the row and column of the matrix. It is quite useful to check if a flow from one network to another network is authorized or not just by using a matrix with all networks'name and the default autorisation.
