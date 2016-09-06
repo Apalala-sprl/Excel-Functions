@@ -367,3 +367,26 @@ Else
 End If
 End Function
 
+
+Public Function dec2bin(dec As Long) As String
+'
+' Excel VBA function returning a string with a binary version of decimal value
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4(), you need to copy this function too.
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+
+Dim n, temp As Integer
+Dim bin As String
+temp = dec
+For n = 1 To howmanybit(dec)
+            bin = temp Mod 2 & bin
+            temp = temp \ 2
+Next
+dec2bin = bin
+     
+End Function
