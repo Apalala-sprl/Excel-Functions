@@ -1,4 +1,4 @@
-Excel-VBA-NetworkTools contains Excel VBA functions to help you deals with IP address resolution, DNS, FQDN and other network stuffs
+Excel-VBA-NetworkTools contains Excel VBA functions to help you deal with IP addresses resolution, DNS, FQDN and other network related stuffs with Excel
 
 The code of the functions in this file must be added in a module using the developper tools in Excel.
 
