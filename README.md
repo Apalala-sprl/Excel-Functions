@@ -26,3 +26,6 @@ The code of the functions in this file must be added in a module using the devel
 
 - GetSubnetName(IPaddress, List of subnets) returns the name of the subnet to wich IPaddress belongs based on a list of subnets, CIDR and names.
 
+- howmanybit(dec as a Long) return the number of bits needed to represent the decimal number dec in a binary format
+
+- dec2bin(dec as long) return a string with the value of dec expressed in binary format
