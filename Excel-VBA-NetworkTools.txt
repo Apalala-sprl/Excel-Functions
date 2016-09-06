@@ -1,0 +1,352 @@
+' *****************************************************************************
+'
+' This file contains all the VBA functions developped by Apalala to facilitate
+' network management using excel. The list and explanaition on the function is
+' in the README file
+'
+' Copy and paste the content of this file into an excel module in your Excel
+' workbook in order to make it available from within your worksheets.
+'
+' Last update: September 6th, 2016
+' *****************************************************************************
+
+Public Function getdomain(ByVal FQDN As String) As String
+'
+' Excel VBA function returning the domain and top level domain from a Fully Qualified Domain Name
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' Created on march 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.4
+' Last updated on 29nd of April 2016
+'
+Dim component() As String
+Dim max As Integer
+
+component = Split(FQDN, ".")
+' split the FQDN in different parts, the dot being the separator
+max = UBound(component)
+If Len(FQDN) > 0 Then
+' if the parameter value is not empty, continue the analysis
+  If (max > 0) Then
+    If (Val(component(max)) = 0) Then
+        If ((max > 1) And (component(max - 1) = "co" Or component(max - 1) = "com")) Then
+            getdomain = LCase(component(max - 2) + "." + component(max - 1) + "." + component(max))
+' return 3 last parts of the FQDN, in lowercase, if second component is CO or COM like in .co.uk or co.hk
+        Else
+            getdomain = LCase(component(max - 1) + "." + component(max))
+' return 2 last parts of the FQDN in lowercase in other cases
+        End If
+    Else
+' return the string "IP address" if the last part (supposed to be the TLD) has a numeric value higher than 0
+' obviously it won't work with a network address but it is unlikely in an URL
+        getdomain = "IP Address"
+    End If
+  Else
+' return the FQDN if there is only one component (likely to be an Alias)
+    getdomain = FQDN
+
+  End If
+Else
+' if the parameter's value is empty, return an empty value
+ getdomain = ""
+End If
+End Function
+
+Public Function inSubnet(IPaddress As String, subnet As String, CIDR As Integer) As String
+'
+' Excel VBA function returning the string "IN" if IPAddress belong to the Subnet and "OUT" if it outside de subnet
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+
+If isIPv4(IPaddress) Then
+' if the parameter IPaddress value is a valid IPv4 address, continue the analysis
+    If isIPv4(subnet) Then
+    ' if the parameter Subnet is a valid IP address, continue the analysis
+        If CIDR >= 0 And CIDR < 32 Then
+        'if the CIDR value is valid
+            If StrComp(Left(IP2BIN(IPaddress), CIDR), Left(IP2BIN(subnet), CIDR)) = 0 Then
+                inSubnet = "IN"
+            Else:
+                inSubnet = "OUT"
+            End If
+        Else:
+            inSubnet = "ERROR: invalid CIDR"
+        End If
+    Else:
+        inSubnet = "ERROR: invalid Subnet"
+    End If
+Else:
+    inSubnet = "ERROR: invalid IP address"
+End If
+End Function
+
+Public Function isIPv4(IPaddress As String) As Boolean
+'
+' Excel VBA function returning TRUE if IPAddress is an IPv4 valid IP address
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+Dim Octet() As String
+Dim NbrPart As Integer
+
+If Len(IPaddress) > 6 Then
+' if the parameter IPaddress value is not empty, continue the analysis
+     
+     If InStr(IPaddress, ".") > 0 Then
+        Octet = Split(IPaddress, ".")
+        'MsgBox ("Split Ok")
+        ' split the IPAddress in different parts, the dot being the separator
+        NbrPart = UBound(Octet)
+        'MsgBox ("NbrPart= " + Str(NbrPart))
+        If NbrPart = 3 Then
+            'MsgBox ("There is 4 parts:" + Octet(1))
+            If (Val(Octet(1)) >= 0 And Val(Octet(1)) < 256) And (Val(Octet(2)) >= 0 And Val(Octet(2)) < 256) And (Val(Octet(3)) >= 0 And Val(Octet(3)) < 256) And (Val(Octet(0)) >= 0 And Val(Octet(0)) < 256) Then
+                isIPv4 = True
+            Else:
+                'MsgBox ("out of range")
+                isIPv4 = False
+            End If
+        Else:
+            'MsgBox ("Too many parts")
+            isIPv4 = False
+        End If
+    Else:
+        'MsgBox ("No dot")
+        isIPv4 = False
+    End If
+Else:
+    'MsgBox ("too short")
+    isIPv4 = False
+End If
+     
+End Function
+
+Public Function IP2BIN(IPaddress As String) As String
+'
+' Excel VBA function returning a string with a binary version of an IPv4 valid IP address
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4(), you need to copy this function too.
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+Dim Octet() As String
+Dim x, n, temp As Integer
+Dim bin As String
+
+
+If isIPv4(IPaddress) Then
+' if the parameter IPaddress is a valid IP address continue the analysis
+     
+     Octet = Split(IPaddress, ".")
+     bin = ""
+     For x = 3 To 0 Step -1
+     temp = Val(Octet(x))
+        For n = 1 To 8
+            bin = temp Mod 2 & bin
+            temp = temp \ 2
+        Next
+    Next
+    IP2BIN = bin
+Else:
+    IP2BIN = "Not a valid IPv4 address"
+End If
+     
+End Function
+
+Public Function bin2IP(ByVal bin As String) As String
+'
+' Excel VBA function returning a string with a binary version of an IPv4 valid IP address
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4(), you need to copy this function too.
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+Dim Octet(4) As String
+Dim x, n, temp As Integer
+Dim IP As String
+
+If Len(bin) = 32 Then
+' if the parameter bin is a valid binary IP address, continue the analysis
+    IP = ""
+    For x = 0 To 3
+        Octet(x) = Mid(bin, (x * 8) + 1, 8)
+        temp = 0
+        For n = 8 To 1 Step -1
+            If Val(Mid(Octet(x), 9 - n, 1)) <> "0" Then
+                temp = temp + (2 ^ (n - 1))
+            End If
+        Next n
+        IP = IP + CStr(temp) + "."
+    Next x
+    bin2IP = Left(IP, Len(IP) - 1)
+Else:
+    bin2IP = "Not a valid IPv4 address"
+End If
+     
+End Function
+
+
+Public Function GetSubnetLowIP(IPaddress As String, CIDR As Integer) As String
+'
+' Excel VBA function returning a string with the lowest IP address in a IPv4 subnet
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4() and IP2BIN you need to copy this function too.
+' Created on 3rd of September 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 3rd of september 2016
+'
+Dim Octets As String
+Dim x, n, temp As Integer
+Dim subnet, host, binaire As String
+
+
+If isIPv4(IPaddress) Then
+' if the parameter IPaddress is a valid IP address continue the analysis
+     
+     Octets = IP2BIN(IPaddress)
+     subnet = Left(Octets, CIDR)
+     host = ""
+     For x = (32 - CIDR) To 1 Step -1
+          host = host + "0"
+     Next x
+     binaire = subnet & host
+     GetSubnetLowIP = bin2IP(binaire)
+Else:
+    GetSubnetLowIP = "Not a valid IPv4 address"
+End If
+     
+End Function
+Public Function GetSubnetHighIP(IPaddress As String, CIDR As Integer) As String
+'
+' Excel VBA function returning a string with the highest IP address in a IPv4 subnet
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4() and IP2BIN you need to copy this function too.
+' Created on 3rd of September 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 3rd of september 2016
+'
+Dim Octets As String
+Dim x, n, temp As Integer
+Dim subnet, host, binaire As String
+
+
+If isIPv4(IPaddress) Then
+' if the parameter IPaddress is a valid IP address continue the analysis
+     
+     Octets = IP2BIN(IPaddress)
+     subnet = Left(Octets, CIDR)
+     host = ""
+     For x = (32 - CIDR) To 1 Step -1
+          host = host + "1"
+     Next x
+     binaire = subnet & host
+     GetSubnetHighIP = bin2IP(binaire)
+Else:
+    GetSubnetHighIP = "Not a valid decimal IPv4 address"
+End If
+     
+End Function
+Public Function GetSubnetIPRange(IPaddress As String, CIDR As Integer) As String
+'
+' Excel VBA function returning a string with the highest IP address in a IPv4 subnet
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4() and IP2BIN you need to copy this function too.
+' Created on 3rd of September 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 3rd of september 2016
+'
+If isIPv4(IPaddress) Then
+    If CIDR < 33 And CIDR >= 0 Then
+        GetSubnetIPRange = GetSubnetLowIP(IPaddress, CIDR) & " - " & GetSubnetHighIP(IPaddress, CIDR)
+    Else:
+        GetSubnetIPRange = "Not a valid CIDR"
+    End If
+Else:
+    GetSubnetIPRange = "Not a valid decimal IPv4 address"
+End If
+
+End Function
+
+
+
+Public Function GetSubnetName(IP As String, ByRef Data As Range) As String
+'
+' Excel VBA function returning a string with the name of the subnet to which an IP address belongs
+' The functions gets the list from a range of cells with the subnet IP in first column, the CIDR as second and the name in third)
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4() and inSubnet(), you need to copy these functions too.
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 29 of August 2016
+'
+Dim r As Long
+Dim flag As Boolean
+Dim subnet As String
+
+subnet = "This IP doesn't belong to a known subnet"
+If isIPv4(IP) Then
+' if the parameter IPaddress is a valid IP address continue the analysis
+    r = 1
+    flag = True
+    Do While Data.Cells(r, 1) <> "" And flag
+            If isIPv4(Data.Cells(r, 1)) Then
+                If inSubnet(IP, Data.Cells(r, 1), Int(Data.Cells(r, 2))) = "IN" Then
+                  subnet = Data.Cells(r, 3)
+                  flag = False
+                End If
+            End If
+            r = r + 1
+    Loop
+Else:
+    subnet = "Not a valid IPv4 address"
+End If
+GetSubnetName = subnet
+End Function
+
+
+
+Public Function GetFlowAuth(ByRef Data As Range, source As String, destination As String) As String
+'
+' Excel VBA function returning a string with the result of authorization of network flow from source to destination
+' The functions gets the list from a range of cells with the source subnet name in first column, the destination subnet name as column header
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4() and inSubnet(), you need to copy these functions too.
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 30 of August 2016
+'
+Dim row, col As Long
+
+
+row = Data.Columns(1).Find(What:=source).row
+col = Data.Rows(1).Find(What:=destination).Column
+GetFlowAuth = Data.Cells(row, col).Value
+
+End Function
+
