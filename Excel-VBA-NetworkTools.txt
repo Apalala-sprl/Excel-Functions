@@ -350,3 +350,20 @@ GetFlowAuth = Data.Cells(row, col).Value
 
 End Function
 
+Public Function howmanybit(dec As Long) As Long
+
+' Excel VBA function returning the number of bits required to represent a specific digital number in binary format
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' Created on August 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 26 of August 2016
+'
+If Abs(dec) > 1 Then
+    howmanybit = Round((Log(Abs(dec) + 1) / Log(2)) + 0.5)
+Else
+    howmanybit = 1
+End If
+End Function
+
