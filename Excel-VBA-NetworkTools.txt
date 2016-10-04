@@ -390,3 +390,34 @@ Next
 dec2bin = bin
      
 End Function
+
+
+Public Function netmask2CIDR(netmask As String) As Integer
+'
+' Excel VBA function returning a CIDR number based on a netmask string
+' This function must be saved in a module of Excel and not in a sheet in order to be able to use it from a workbook
+' As it uses the function isIPv4(), you need to copy this function too.
+' Created on October 2016
+' Author: Emmanuel Nicaise for Apalala sprl
+'
+' Version 1.0
+' Last updated on 4th of October 2016
+'
+
+Dim n As Integer
+Dim bin As String
+If isIPv4(netmask) Then
+' if the parameter IPaddress is a valid IP address continue the analysis
+    bin = IP2BIN(netmask)
+    n = 1
+    Do While Mid(bin, n, 1) = "1"
+        n = n + 1
+    Loop
+    netmask2CIDR = n - 1
+Else
+    netmask2CIDR = 100
+    ' returns 100 as error message
+End If
+End Function
+
+
